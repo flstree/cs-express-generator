@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Blog</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1>Welcome to my blog</h1>
+    <p>Thank you for visiting us</p>
+    <a href=/blog/create>Create Blog</a>
+
+    <ul>
+        <% for(var i = 0; i < blogItems.length; i++) { %>
+          <li>
+            <div>
+                <h2><%= blogItems[i]['title'] %></h2>
+                <p><%= blogItems[i]['description'] %></p>
+                <img src=<%= blogItems[i]['image'] %> height="150px" width="150px">
+                <p><%= blogItems[i]['createdAt'] %></p>
+                <a href=/blog/update/<%= blogItems[i]['id'] %>>Update</a>
+                <a href=/blog/delete/<%= blogItems[i]['id'] %>>Delete</a>
+                <hr>
+            </div>
+          </li>
+        <% } %>
+    </ul>
+  </body>
+</html>
