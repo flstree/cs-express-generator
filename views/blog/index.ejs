@@ -2,25 +2,27 @@
 <html>
   <head>
     <title>Blog</title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel='stylesheet' href='/stylesheets/blog/style.css' />
   </head>
   <body>
-    <h1>Welcome to my blog</h1>
-    <p>Thank you for visiting us</p>
+    <h1>Test Blog</h1>
+
     <a href=/blog/create>Create Blog</a>
 
     <ul>
         <% for(var i = 0; i < blogItems.length; i++) { %>
-          <li>
-            <div>
+          <li class="blog-item">
+            <div class="blog-header">
                 <h2><%= blogItems[i]['title'] %></h2>
-                <p><%= blogItems[i]['description'] %></p>
-                <img src=<%= blogItems[i]['image'] %> height="150px" width="150px">
                 <p><%= blogItems[i]['createdAt'] %></p>
-                <a href=/blog/update/<%= blogItems[i]['id'] %>>Update</a>
-                <a href=/blog/delete/<%= blogItems[i]['id'] %>>Delete</a>
-                <hr>
             </div>
+            <div class="blog-content">
+                <p><%= blogItems[i]['content'] %></p>
+                <img src=<%= blogItems[i]['image'] %> height="150px" width="150px">
+            </div>
+            <a class="btn" href=/blog/update/<%= blogItems[i]['id'] %>>Update</a>
+            <a class="btn" href=/blog/delete/<%= blogItems[i]['id'] %>>Delete</a>
+            <hr>
           </li>
         <% } %>
     </ul>
