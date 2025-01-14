@@ -96,6 +96,7 @@ router.get("/edit/:id", function (req, res) {
 /** Delete a route */
 router.get("/delete/:id", function (req, res) {
   const id = req.params.id;
+  const updates = req.body;
   const index = blogItems.findIndex((item) => item.id == id);
   blogItems.splice(index, 1);
   res.redirect("/blog");
