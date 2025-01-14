@@ -102,5 +102,4 @@ router.get("/delete/:id", function (req, res) {
   res.redirect("/blog");
 });
 
-
 module.exports = router;
