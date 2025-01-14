@@ -51,6 +51,8 @@ const blogItems = [
   },
 ];
 
+[1, 2, 3, 4, 5];
+
 /* GET blog listing. */
 router.get("/", function (req, res) {
   res.render("blog/index", { blogItems });
@@ -75,10 +77,28 @@ router.post("/create", function (req, res) {
 });
 
 /** Update a blog */
+router.post("/edit/:id", function (req, res) {
+  const id = req.params.id;
+  const updates = req.body;
+  const index = blogItems.findIndex((item) => item.id == id);
+  blogItems[index].title = updates.title;
+  blogItems[index].content = updates.content;
+  res.redirect("/blog");
+});
+
 router.get("/edit/:id", function (req, res) {
   const id = req.params.id;
-  const blogItem = blogItems.find((item) => item.id == id)
+  const blogItem = blogItems.find((item) => item.id == id);
   res.render("blog/edit", { blogItem });
 });
+
+router.get("/delete/:id", function (req, res) {
+  const id = req.params.id;
+  const updates = req.body;
+  const index = blogItems.findIndex((item) => item.id == id);
+  blogItems.splice(index, 1);
+  res.redirect("/blog");
+});
+
 
 module.exports = router;

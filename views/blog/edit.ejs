@@ -7,11 +7,11 @@
   <body>
     <h1>Edit blog <%= blogItem.title %></h1>
 
-    <form action='/blog/edit/<%= blogItem.id %>' method="put">
+    <form action=<%= '/blog/edit/' + blogItem.id %> method="post">
         <label for="title">Title:</label><br>
-        <input type="text" id="title" name="title" value='<%= blogItem.title %>' ><br>
+        <input type="text" id="title" name="title" value='<%= blogItem.title %>' /><br>
         <label for="description">Description:</label><br>
-        <textarea type="text" id="description" name="description"><%= blogItem.description %></textarea><br><br>
+        <textarea type="text" id="content" name="content"><%= blogItem.content %></textarea><br><br>
         <input type="submit" value="Submit">
     </form> 
   </body>
