@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Edit Blog</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1>Edit blog <%= blogItem.title %></h1>
+
+    <form action='/blog/edit/<%= blogItem.id %>' method="put">
+        <label for="title">Title:</label><br>
+        <input type="text" id="title" name="title" value='<%= blogItem.title %>' ><br>
+        <label for="description">Description:</label><br>
+        <textarea type="text" id="description" name="description"><%= blogItem.description %></textarea><br><br>
+        <input type="submit" value="Submit">
+    </form> 
+  </body>
+</html>

@@ -56,6 +56,7 @@ router.get("/", function (req, res) {
   res.render("blog/index", { blogItems });
 });
 
+/** Create a blog */
 router.get("/create", function (req, res) {
   res.render("blog/create");
 });
@@ -71,6 +72,13 @@ router.post("/create", function (req, res) {
     createdAt: new Date().toDateString(),
   });
   res.redirect("/blog");
+});
+
+/** Update a blog */
+router.get("/edit/:id", function (req, res) {
+  const id = req.params.id;
+  const blogItem = blogItems.find((item) => item.id == id)
+  res.render("blog/edit", { blogItem });
 });
 
 module.exports = router;
