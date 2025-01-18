@@ -51,19 +51,46 @@ const blogItems = [
   },
 ];
 
-[1, 2, 3, 4, 5];
+const admins = [
+  {
+    username: "johndoe",
+    name: "John Doe",
+    email: "johndoe@gmail.com",
+    password: "123456",
+  },
+  {
+    username: "jenny",
+    name: "Jenny Doe",
+    email: "jenny@gmail.com",
+    password: "password",
+  },
+];
+
+function authenticateUser(req) {
+  const user = req.session.user;
+  if (!user) {
+    return res.redirect("/blog");
+  }
+}
 
 /* GET blog listing. */
 router.get("/", function (req, res) {
-  res.render("blog/index", { blogItems });
+  const user = req.session.user;
+  res.render("blog/index", { blogItems, user });
 });
 
 /** Create a blog */
 router.get("/create", function (req, res) {
-  res.render("blog/create");
+  authenticateUser(req);
+  if (!user) {
+    return res.redirect("/blog");
+  }
+  return res.render("blog/create");
 });
 
 router.post("/create", function (req, res) {
+  authenticateUser(req);
+
   const { title, description } = req.body;
   blogItems.push({
     id: blogItems.length + 1,
@@ -78,6 +105,8 @@ router.post("/create", function (req, res) {
 
 /** Update a blog */
 router.post("/edit/:id", function (req, res) {
+  authenticateUser(req);
+
   const id = req.params.id;
   const updates = req.body;
   const index = blogItems.findIndex((item) => item.id == id);
@@ -87,19 +116,53 @@ router.post("/edit/:id", function (req, res) {
 });
 
 router.get("/edit/:id", function (req, res) {
+  authenticateUser(req);
+
   const id = req.params.id;
   const blogItem = blogItems.find((item) => item.id == id);
-  res.render("blog/edit", { blogItem });
+  if (!blogItem) return res.render("error");
+  return res.render("blog/edit", { blogItem });
 });
-
 
 /** Delete a route */
 router.get("/delete/:id", function (req, res) {
+  authenticateUser(req);
+
   const id = req.params.id;
-  const updates = req.body;
   const index = blogItems.findIndex((item) => item.id == id);
   blogItems.splice(index, 1);
   res.redirect("/blog");
+});
+
+/** Admin Routes */
+router.get("/wp-admin", function (req, res) {
+  const user = req.session.user;
+
+  if (user) {
+    return res.redirect("/blog");
+  }
+  return res.render("blog/admin/login");
+});
+
+router.post("/wp-admin", function (req, res) {
+  const { email, password } = req.body;
+
+  const admin = admins.find((admin) => admin.email === email);
+
+  if (!admin) return res.render("blog/admin/login");
+
+  if (admin.password !== password) {
+    return res.render("blog/admin/login");
+  }
+
+  req.session.user = admin;
+
+  return res.redirect("/blog");
+});
+
+router.get("/logout", function (req, res) {
+  req.session.user = undefined;
+  return res.redirect("/blog");
 });
 
 module.exports = router;
