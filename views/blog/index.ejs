@@ -23,7 +23,10 @@
         <% for(var i = 0; i < blogItems.length; i++) { %>
           <li class="blog-item">
             <div class="blog-header">
-                <h2><%= blogItems[i]['title'] %></h2>
+                <div>
+                  <h2><%= blogItems[i]['title'] %></h2>
+                  <span><%= blogItems[i]['createdBy'] %></span>
+                </div>
                 <p><%= blogItems[i]['createdAt'] %></p>
             </div>
             <div class="blog-content">

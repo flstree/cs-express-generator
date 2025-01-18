@@ -22,6 +22,7 @@ const blogItems = [
         As we look ahead, the ethical considerations of AI, such as privacy and job displacement, remain critical discussions. 
         However, one thing is clear: the future of AI is bright, and its potential impact on humanity is limitless.
       `,
+    createdBy: "jenny",
   },
   {
     id: 2,
@@ -48,17 +49,20 @@ const blogItems = [
   
         By implementing these tips, you can significantly reduce your carbon footprint and contribute to a healthier planet.
       `,
+    createdBy: "johndoe",
   },
 ];
 
 const admins = [
   {
+    id: 1,
     username: "johndoe",
     name: "John Doe",
     email: "johndoe@gmail.com",
     password: "123456",
   },
   {
+    id: 2,
     username: "jenny",
     name: "Jenny Doe",
     email: "jenny@gmail.com",
@@ -66,7 +70,7 @@ const admins = [
   },
 ];
 
-function authenticateUser(req) {
+function authenticateUser(req, res) {
   const user = req.session.user;
   if (!user) {
     return res.redirect("/blog");
@@ -76,62 +80,86 @@ function authenticateUser(req) {
 /* GET blog listing. */
 router.get("/", function (req, res) {
   const user = req.session.user;
-  res.render("blog/index", { blogItems, user });
+
+  let items = blogItems;
+
+  if (user) {
+    items = blogItems.filter((item) => item.createdBy === user.username);
+  }
+  res.render("blog/index", { blogItems: items, user });
 });
 
 /** Create a blog */
 router.get("/create", function (req, res) {
-  authenticateUser(req);
-  if (!user) {
-    return res.redirect("/blog");
-  }
+  authenticateUser(req, res);
   return res.render("blog/create");
 });
 
 router.post("/create", function (req, res) {
-  authenticateUser(req);
+  authenticateUser(req, res);
+  const user = req.session.user;
 
-  const { title, description } = req.body;
+  const { title, content } = req.body;
   blogItems.push({
     id: blogItems.length + 1,
     title,
-    description,
+    description: "",
+    content,
     image:
       "https://images.pexels.com/photos/7605805/pexels-photo-7605805.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
     createdAt: new Date().toDateString(),
+    createdBy: user.username,
   });
   res.redirect("/blog");
 });
 
 /** Update a blog */
 router.post("/edit/:id", function (req, res) {
-  authenticateUser(req);
+  authenticateUser(req, res);
+  const user = req.session.user;
 
   const id = req.params.id;
   const updates = req.body;
   const index = blogItems.findIndex((item) => item.id == id);
+
+  if (user.username !== blogItems[index].createdBy) {
+    return res.redirect("/blog");
+  }
+
   blogItems[index].title = updates.title;
   blogItems[index].content = updates.content;
   res.redirect("/blog");
 });
 
 router.get("/edit/:id", function (req, res) {
-  authenticateUser(req);
+  authenticateUser(req, res);
+  const user = req.session.user;
 
   const id = req.params.id;
   const blogItem = blogItems.find((item) => item.id == id);
+
+  if (user.username !== blogItem.createdBy) {
+    return res.redirect("/blog");
+  }
+
   if (!blogItem) return res.render("error");
   return res.render("blog/edit", { blogItem });
 });
 
 /** Delete a route */
 router.get("/delete/:id", function (req, res) {
-  authenticateUser(req);
+  authenticateUser(req, res);
 
+  const user = req.session.user;
   const id = req.params.id;
   const index = blogItems.findIndex((item) => item.id == id);
+
+  if (user.username !== blogItems[index].createdBy) {
+    return res.redirect("/blog");
+  }
+
   blogItems.splice(index, 1);
-  res.redirect("/blog");
+  return res.redirect("/blog");
 });
 
 /** Admin Routes */
