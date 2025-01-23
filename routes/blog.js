@@ -81,12 +81,18 @@ function authenticateUser(req, res) {
 router.get("/", function (req, res) {
   const user = req.session.user;
 
-  let items = blogItems;
-
+  let items = {};
   if (user) {
-    items = blogItems.filter((item) => item.createdBy === user.username);
+    items = { createdBy: user._id };
   }
-  res.render("blog/index", { blogItems: items, user });
+
+  db.blogItems.find(items, function (err, docs) {
+    if (err) {
+      return res.render("error");
+    }
+
+    return res.render("blog/index", { blogItems: docs, user });
+  });
 });
 
 /** Create a blog */
@@ -98,19 +104,24 @@ router.get("/create", function (req, res) {
 router.post("/create", function (req, res) {
   authenticateUser(req, res);
   const user = req.session.user;
-
   const { title, content } = req.body;
-  blogItems.push({
-    id: blogItems.length + 1,
+
+  const newBlog = {
     title,
     description: "",
     content,
     image:
       "https://images.pexels.com/photos/7605805/pexels-photo-7605805.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
     createdAt: new Date().toDateString(),
-    createdBy: user.username,
+    createdBy: user._id,
+  };
+  db.blogItems.insert(newBlog, function (err, newDoc) {
+    if (err) {
+      return res.render("error", { message: "Unable to create document" });
+    }
+
+    return res.redirect("/blog");
   });
-  res.redirect("/blog");
 });
 
 /** Update a blog */
@@ -175,17 +186,45 @@ router.get("/wp-admin", function (req, res) {
 router.post("/wp-admin", function (req, res) {
   const { email, password } = req.body;
 
-  const admin = admins.find((admin) => admin.email === email);
+  db.admins.findOne({ email }, function (err, admin) {
+    if (err) return res.render("blog/admin/login");
+    if (!admin) return res.render("blog/admin/login");
 
-  if (!admin) return res.render("blog/admin/login");
+    if (admin.password !== password) {
+      return res.render("blog/admin/login");
+    }
 
-  if (admin.password !== password) {
-    return res.render("blog/admin/login");
+    req.session.user = admin;
+
+    return res.redirect("/blog");
+  });
+});
+
+router.get("/signup", function (req, res) {
+  const user = req.session.user;
+
+  if (user) {
+    return res.redirect("/blog");
   }
+  return res.render("blog/admin/signup");
+});
 
-  req.session.user = admin;
+router.post("/signup", function (req, res) {
+  const { email, password } = req.body;
 
-  return res.redirect("/blog");
+  db.admins.findOne({ email }).exec(function (err, admin) {
+    if (err) {
+      return res.render("blog/admin/signup");
+    }
+    if (admin) return res.render("blog/admin/signup");
+    const newAdmin = {
+      email,
+      password,
+    };
+    db.admins.insert(newAdmin, function (err, doc) {
+      return res.redirect("/blog");
+    });
+  });
 });
 
 router.get("/logout", function (req, res) {
