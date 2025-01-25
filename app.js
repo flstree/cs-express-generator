@@ -10,6 +10,10 @@ var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var authRouter = require("./routes/auth");
 var blogRouter = require("./routes/blog");
+const {
+  caesarCipherEncrypt,
+  caesarCipherDecrypt,
+} = require("./utils/ceasar-cipher");
 
 var app = express();
 
@@ -17,10 +21,22 @@ db = {};
 db.admins = new Datastore({
   filename: "database/admins.datafile",
   autoload: true,
+  afterSerialization: function (data) {
+    return caesarCipherEncrypt(data, 7);
+  },
+  beforeDeserialization: function (data) {
+    return caesarCipherDecrypt(data, 7);
+  },
 });
 db.blogItems = new Datastore({
   filename: "database/blogitems.datafile",
   autoload: true,
+  afterSerialization: function (data) {
+    return caesarCipherEncrypt(data, 7);
+  },
+  beforeDeserialization: function (data) {
+    return caesarCipherDecrypt(data, 7);
+  },
 });
 
 // view engine setup
