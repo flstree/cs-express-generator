@@ -130,16 +130,27 @@ router.post("/edit/:id", function (req, res) {
   const user = req.session.user;
 
   const id = req.params.id;
+
   const updates = req.body;
-  const index = blogItems.findIndex((item) => item.id == id);
 
-  if (user.username !== blogItems[index].createdBy) {
-    return res.redirect("/blog");
-  }
+  db.blogItems.findOne({ _id: id }, function (err, doc) {
+    if (err) {
+      return res.redirect("/blog");
+    }
 
-  blogItems[index].title = updates.title;
-  blogItems[index].content = updates.content;
-  res.redirect("/blog");
+    if (user._id !== doc.createdBy) {
+      return res.redirect("/blog");
+    }
+
+    db.blogItems.Update(
+      { _id: id },
+      { $set: { title: updates.title, content: updates.content } },
+      {},
+      function () {
+        return res.redirect("/blog");
+      }
+    );
+  });
 });
 
 router.get("/edit/:id", function (req, res) {
